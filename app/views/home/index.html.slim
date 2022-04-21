@@ -1,0 +1,19 @@
+doctype html
+html
+  head
+    title
+    = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true
+    = csrf_meta_tags
+  body
+    header.navbar
+      .logo
+        = link_to "Spy app", 'root_path', id: "logo"
+    .main
+      h1.welcome bem vindo
+      = yield
+
+    div
+      span 
+        'CNPJ
+      input type="text"/
+      button type="submit"
