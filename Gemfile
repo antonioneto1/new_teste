@@ -24,6 +24,7 @@ gem 'jbuilder', '~> 2.7'
 gem 'slim-rails'
 gem 'httparty'
 gem 'awesome_print', require: 'ap'
+gem 'ransack'
 
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'

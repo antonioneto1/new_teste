@@ -13,12 +13,13 @@
 ActiveRecord::Schema.define(version: 2022_04_21_115307) do
 
   create_table "titulos", force: :cascade do |t|
-    t.decimal "cnpj_cedente"
-    t.decimal "cnpj_sacado"
+    t.text "cnpj_cedente"
+    t.text "cnpj_sacado"
     t.text "numero_titulo"
     t.float "valor"
     t.date "data_vencimento"
     t.date "data_importacao"
+    t.integer "status"
   end
 
 end

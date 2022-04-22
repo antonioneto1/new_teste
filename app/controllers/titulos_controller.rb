@@ -22,7 +22,6 @@ class TitulosController < ApplicationController
   # POST /titulos or /titulos.json
   def create
     @titulo = Titulo.new(titulo_params)
-
     respond_to do |format|
       if @titulo.save
         format.html { redirect_to titulo_url(@titulo), notice: "Titulo was successfully created." }
