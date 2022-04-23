@@ -1,10 +1,10 @@
 Rails.application.routes.draw do
   resources :titulos
-  root 'csv#index'
+  root 'consultas#index'
   post 'titulos/importar', to: 'titulos#importar'
-  get 'csv/titulo_registrado', to: 'csv#titulo_registrado'
-  get 'csv/protestados', to: 'csv#protestados'
-  get 'csv/titulos_da_base', to: 'csv#titulos_da_base'
+  get 'consultas/titulo_registrado', to: 'consultas#titulo_registrado'
+  get 'consultas/protestados', to: 'consultas#protestados'
+  get 'consultas/titulos_da_base', to: 'consultas#titulos_da_base'
 
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end

@@ -7,7 +7,9 @@ class Titulo < ApplicationRecord
   validates :data_vencimento, presence: {:message => "A data de vencimento do Titulo é obrigatório"}
   validates :valor, presence: {:message => "O Valor do Titulo é obrigatório"}
   
-  validate :valor_zerado, :on => :create
+  validate :valor_zerado
+  validate :valida_vencimento
+  validate :titulo_duplicado
 
 
   enum status: { nao_registrado: 0, registrado: 1 }
@@ -22,23 +24,13 @@ class Titulo < ApplicationRecord
     errors.add(:valor, "O valor do titulo nao pode ser menor 0.0") if self.valor.zero?
   end
 
-  def titulo_vencido?
-    data_vencimento.present? && data_vencimento.to_date < Date.today
+  def valida_vencimento
+    errors.add(:data_vencimento,"O titulo de numero #{numero_titulo}, encontra-se vencido") unless data_vencimento.to_date > Date.today
   end
 
-  def err_titulo_vencido
-    "O titulo de numero #{numero_titulo}, encontra-se vencido"
-  end
-
-  def err_duplicado
-    "Já existe um titulo de numero #{numero_titulo}, para o Cedente #{cnpj_cedente}"
-  end
-
-  def titulo_duplicado?
-    return true if Titulo.where(cnpj: cnpj, numero_titulo: numero_titulo).count > 0
-  end
-
-  def titulo_duplicado?
-    return true if Titulo.where(cnpj_cedente: self.cnpj_cedente, numero_titulo: self.numero_titulo).count > 0
+  def titulo_duplicado
+    if Titulo.where(cnpj_cedente: cnpj_cedente, numero_titulo: numero_titulo).count > 0
+      errors.add(:numero_titulo, "Já existe um titulo de numero #{numero_titulo}, para o Cedente #{cnpj_cedente}")
+    end
   end
 end

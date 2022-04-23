@@ -61,10 +61,7 @@ class TitulosController < ApplicationController
   def importar
     if params[:file_csv].present?
       file = params[:file_csv].tempfile.path
-      Thread.new do
-        leitura_csv(file)
-      end
-      render :json => {message: 'Os titulos estao sendo imporados, embreve voce poderá conferir'}, status: 200
+      leitura_csv(file)
     else
       titulos = params.dig("_json")
       import_titulo(titulos)
@@ -83,18 +80,16 @@ class TitulosController < ApplicationController
         cnpj_sacado: titulo['cnpj_sacado'],
         valor: titulo['valor'].to_f,
         data_vencimento: titulo['data_vencimento'].to_date,
-        data_importacao: Date.today}
+        data_importacao: Date.today
+      }
       t = Titulo.create(dados)
       t.status = t.status_do_titulo
-      t.vencido = t.titulo_vencido?
-      if t.valid? && !t.vencido? && !t.titulo_duplicado?
+      if t.valid?
         t.save
         cnpjs << t.cnpj_cedente
         cnpjs << t.cnpj_sacado
       else
-        errors << t.err_duplicado if t.titulo_duplicado?
-        errors << t.err_titulo_vencido if t.vencido?
-        errors << t.errors.messages
+        errors = t.errors.messages
         response << parse_respnse(titulo, errors)
         status = 400
       end
@@ -124,32 +119,31 @@ class TitulosController < ApplicationController
         r = r.split(";")
         if r[0].present?
           next if r[0] == "numero_titulo"
-          t = Titulo.create
-          t.numero_titulo = r[0]
-          t.cnpj_cedente = r[1]
-          t.cnpj_sacado = r[2]
-          t.valor = r[3].to_f
-          t.data_vencimento = r[4]
-          t.data_importacao = Date.today
+          dados = {
+            numero_titulo: r[0],
+            cnpj_cedente: r[1],
+            cnpj_sacado: r[2],
+            valor: r[3].to_f,
+            data_vencimento: r[4],
+            data_importacao: Date.today
+          }
+          t = Titulo.create(dados)
           t.status = t.status_do_titulo
-          t.vencido = t.titulo_vencido?
-          if t.valid? && !t.vencido? && !t.titulo_duplicado?
-            t.save
+          if t.valid?
+            t.vencido = false
             cnpjs << t.cnpj_cedente
             cnpjs << t.cnpj_sacado
+            t.save
           else
-            errors << t.err_duplicado if t.titulo_duplicado?
-            errors << t.err_titulo_vencido if t.vencido?
-            errors << t.errors.messages
-            response << parse_respnse(titulo, errors)
+            errors = t.errors.messages
+            response << parse_respnse(t, errors)
             status = 400
           end
         end
       rescue
       end
-
-      response[:protestos] = titulos_protestado?(cnpjs.uniq) if status == 200
-      render :json =>  response, status: status 
+      response << titulos_protestado?(cnpjs.uniq) if status == 200
+      render :json => response, status: status
     end
   end
 
