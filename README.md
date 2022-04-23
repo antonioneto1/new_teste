@@ -1,14 +1,11 @@
-Este é um importador e validador de titulos.
-Neste back-end estou incluindo uma opcao extra do que foi pedido, estou incluindo uma opcao de importacao de titulos via
-arqvio csv. no projeto existe um modelo chamado "modelo_importacao_titulos.csv". nele existe já as colunas definidas e um dado para seguir o modelo. 
+Este é um importador e validador de títulos. Neste back-end estou incluindo uma opção extra do que foi pedido, incluindo uma opção de importação de títulos via arquivo CSV. No projeto existe um modelo chamado "modelo_importacao_titulos.csv", nele existe colunas definidas e os dados para seguir o modelo.
 
-Alem disso usei como filtro de pesquisa a gem 'ransack'. eu tinha pensando em construir os filtros e buscar via sql, mas seria desncessario já que temos uma ferramenta otima e performatica.
+Além disso usei como filtro de pesquisa a gem 'ransack', na qual a intenção é em construir os filtros e buscar via sql, mas seria desncessário já que temos uma ferramenta ótima e performática.
 
 Alem disso optei por consumir as Apis com a gem httparty.
 
-ficou na duvida se deveria ser full-back ou deveria tambem fazer uma interface do app, mas como imagino que seja algo que iria receber uma lista de titulos, acredito que seja a forma correta que eu fiz. 
+Fiquei em dúvida se deveria ser full-back ou se deveria tambem fazer uma interface do app, mas como imagino que seja algo que iria receber uma lista de títulos, acredito que o projeto realizado atende a demanda.
 
-Abaixo tem essa colecao do postman em que eu ja deixei as rotas de acessos bem definidas e os parametros esperados.
-alem disso existe uma opcao de upload de arquivo csv via postman. 
+Abaixo existe uma coleção do postman na qual as rotas de acessos estão bem definidas e com os parâmetros esperados. Além disso existe uma opção de upload de arquivo csv via postman.
 
 https://www.getpostman.com/collections/b6370b81cb64ca18a2b9
