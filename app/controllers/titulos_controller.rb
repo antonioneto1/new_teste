@@ -1,5 +1,7 @@
 class TitulosController < ApplicationController
-  before_action :set_titulo, only: %i[ show edit update destroy ]
+  #before_action :set_titulo, only: %i[ show edit update destroy ]
+  skip_before_action :verify_authenticity_token
+  
 
   # GET /titulos or /titulos.json
   def index
@@ -54,6 +56,116 @@ class TitulosController < ApplicationController
       format.html { redirect_to titulos_url, notice: "Titulo was successfully destroyed." }
       format.json { head :no_content }
     end
+  end
+
+  def importar
+    if params[:file_csv].present?
+      file = params[:file_csv].tempfile.path
+      Thread.new do
+        leitura_csv(file)
+      end
+      render :json => {message: 'Os titulos estao sendo imporados, embreve voce poderá conferir'}, status: 200
+    else
+      titulos = params.dig("_json")
+      import_titulo(titulos)
+    end
+  end
+
+  def import_titulo(titulos)
+    errors = []
+    response = []
+    cnpjs = []
+    status = 200
+    titulos.each do |titulo|
+      dados = {
+        numero_titulo: titulo['numero_titulo'],
+        cnpj_cedente: titulo['cnpj_cedente'],
+        cnpj_sacado: titulo['cnpj_sacado'],
+        valor: titulo['valor'].to_f,
+        data_vencimento: titulo['data_vencimento'].to_date,
+        data_importacao: Date.today}
+      t = Titulo.create(dados)
+      t.status = t.status_do_titulo
+      t.vencido = t.titulo_vencido?
+      if t.valid? && !t.vencido? && !t.titulo_duplicado?
+        t.save
+        cnpjs << t.cnpj_cedente
+        cnpjs << t.cnpj_sacado
+      else
+        errors << t.err_duplicado if t.titulo_duplicado?
+        errors << t.err_titulo_vencido if t.vencido?
+        errors << t.errors.messages
+        response << parse_respnse(titulo, errors)
+        status = 400
+      end
+    end
+
+    response << titulos_protestado?(cnpjs.uniq) if status == 200
+    render :json => response, status: status
+    return
+  end
+
+  def parse_respnse(titulo, errors)
+    {
+      titulo: titulo,
+      errors: errors
+    }
+  end
+
+
+  def leitura_csv(file)
+    errors = []
+    response = []
+    cnpjs = []
+    status = 200
+    File.open(file).each do |r|
+      begin
+        r = r.join(",") if r.is_a?(Array)
+        r = r.split(";")
+        if r[0].present?
+          next if r[0] == "numero_titulo"
+          t = Titulo.create
+          t.numero_titulo = r[0]
+          t.cnpj_cedente = r[1]
+          t.cnpj_sacado = r[2]
+          t.valor = r[3].to_f
+          t.data_vencimento = r[4]
+          t.data_importacao = Date.today
+          t.status = t.status_do_titulo
+          t.vencido = t.titulo_vencido?
+          if t.valid? && !t.vencido? && !t.titulo_duplicado?
+            t.save
+            cnpjs << t.cnpj_cedente
+            cnpjs << t.cnpj_sacado
+          else
+            errors << t.err_duplicado if t.titulo_duplicado?
+            errors << t.err_titulo_vencido if t.vencido?
+            errors << t.errors.messages
+            response << parse_respnse(titulo, errors)
+            status = 400
+          end
+        end
+      rescue
+      end
+
+      response[:protestos] = titulos_protestado?(cnpjs.uniq) if status == 200
+      render :json =>  response, status: status 
+    end
+  end
+
+  def titulos_protestado?(cnpjs)
+    protestos = []
+    protesto = Protesto.new
+    if cnpjs.any?
+      cnpjs.each do |cnpj|
+        titulos = protesto.consulta(cnpj)
+        protestos << {
+          mensagem: "O Cedente de CNPJ #{cnpj}, possui a quantidade #{titulos.count} titulos protestados.",
+          titulos: titulos
+        }
+      end
+    end
+    protestos
   end
 
   private

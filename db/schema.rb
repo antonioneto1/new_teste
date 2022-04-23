@@ -20,6 +20,7 @@ ActiveRecord::Schema.define(version: 2022_04_21_115307) do
     t.date "data_vencimento"
     t.date "data_importacao"
     t.integer "status"
+    t.boolean "vencido"
   end
 
 end

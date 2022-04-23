@@ -8,6 +8,7 @@ class CreateTitulos < ActiveRecord::Migration[6.1]
       t.date :data_vencimento
       t.date :data_importacao
       t.integer :status
+      t.boolean :vencido
     end
   end
 end
