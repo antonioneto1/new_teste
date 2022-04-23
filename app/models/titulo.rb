@@ -29,7 +29,7 @@ class Titulo < ApplicationRecord
   end
 
   def titulo_duplicado
-    if Titulo.where(cnpj_cedente: cnpj_cedente, numero_titulo: numero_titulo).count > 0
+    if Titulo.where(cnpj_cedente: cnpj_cedente, numero_titulo: numero_titulo).where.not(status: nil, vencido: nil).count > 0
       errors.add(:numero_titulo, "Já existe um titulo de numero #{numero_titulo}, para o Cedente #{cnpj_cedente}")
     end
   end
