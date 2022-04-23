@@ -8,3 +8,7 @@ Alem disso optei por consumir as Apis com a gem httparty.
 
 ficou na duvida se deveria ser full-back ou deveria tambem fazer uma interface do app, mas como imagino que seja algo que iria receber uma lista de titulos, acredito que seja a forma correta que eu fiz. 
 
+Abaixo tem essa colecao do postman em que eu ja deixei as rotas de acessos bem definidas e os parametros esperados.
+alem disso existe uma opcao de upload de arquivo csv via postman. 
+
+https://www.getpostman.com/collections/b6370b81cb64ca18a2b9
